@@ -30,9 +30,10 @@ list.files()
 ```
 
 ```
-## [1] "activity.csv"         "activity.zip"         "doc"                 
-## [4] "instructions_fig"     "old_PA1_template.Rmd" "PA1_template.html"   
-## [7] "PA1_template.Rmd"     "README.md"
+##  [1] "activity.csv"         "activity.zip"         "doc"                 
+##  [4] "instructions_fig"     "old_PA1_template.Rmd" "PA1_template_files"  
+##  [7] "PA1_template.html"    "PA1_template.md"      "PA1_template.Rmd"    
+## [10] "README.md"
 ```
 
 ```r
@@ -117,7 +118,7 @@ hist(actData_byDay_sumSteps$stepsPerDay, breaks = 10,
      main = "Histogram of steps per day from activity data", xlab = "Steps per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+![](PA1_template_files/figure-html/histoPlot1_stepsPerDay-1.png) 
 
 #### 3. Calculate and report mean number of steps per day  
 
@@ -159,7 +160,7 @@ qplot(x = interval, y = avgSteps, data = actData_byInterval_avgSteps, geom = "li
         theme(plot.title = element_text(face = "bold", vjust = 1))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![](PA1_template_files/figure-html/timePlot1_stepsPerInterval-1.png) 
 
 #### 2. Which time interval contains the most steps?
 
@@ -253,7 +254,7 @@ hist(actDataImputed_byDay_sumSteps$stepsPerDay, breaks = 10,
      main = "Histogram of steps per day from imputed activity data", xlab = "Steps per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
+![](PA1_template_files/figure-html/histoPlot2_imputedStepsPerDay-1.png) 
 
 #### 4b. Calculate and report mean and median number of steps from imputed data  
 
@@ -311,7 +312,7 @@ qplot(x = interval, y = meanSteps, data = actDataWeekends_summary,
                                                                          face = "bold"))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png) 
+![](PA1_template_files/figure-html/timePlot2_stepsByDayType-1.png) 
 
 Looks like people sleep in more on the weekends, and don't have the spike during morning commute like they do on the weekdays. But through the day, they are on average more mobile.
 

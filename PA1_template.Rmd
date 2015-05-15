@@ -22,7 +22,7 @@ For this assignment, we are trying to display activity patterns from data genera
 ### A. Loading and pre-processing data  
 First a quick check - before executing this code, be sure the **correct working directory** is selected - specifically, the present working directory must contain the data file entitled *"activity.csv"*. The following code should check that:
 
-```{r}
+```{r checkDir}
 getwd()
 list.files()
 ifelse(file.exists("activity.csv"), print("Looks good!"), print("Hmmm...can't find activity.csv"))
@@ -34,7 +34,7 @@ Now that we're in the right place, let's load two packages that I will use:
  - **dplyr** for data manipulation  
  - **ggplot2** for plotting
  
-```{r}
+```{r loadPkgs}
 if(!require("dplyr")) install.packages("dplyr")
 library(dplyr)
 if(!require("ggplot2")) install.packages("ggplot2")
@@ -45,7 +45,7 @@ library(ggplot2)
 
 The following code reads the data file into a data.frame, and then converts the date column from characters to dates.  
 
-```{r}
+```{r loadProcessData}
 actData <- read.csv(file = "activity.csv", header = TRUE, stringsAsFactors = FALSE)
 actData$date <- as.Date(actData$date)
 ```
@@ -56,7 +56,7 @@ actData$date <- as.Date(actData$date)
 
 I use the **dplyr** package to first group data by day, then summarize by average number of steps per day (removing all NA values).  
 
-```{r}
+```{r stepsPerDay}
 actData_byDay <- group_by(actData, date)
 actData_byDay_sumSteps <- summarize(actData_byDay, stepsPerDay = sum(steps, na.rm = TRUE))
 ```
@@ -65,7 +65,7 @@ actData_byDay_sumSteps <- summarize(actData_byDay, stepsPerDay = sum(steps, na.r
 
 Using the qplot() feature of **ggplot2**  
 
-```{r}
+```{r histoPlot1_stepsPerDay}
 hist(actData_byDay_sumSteps$stepsPerDay, breaks = 10, 
      main = "Histogram of steps per day from activity data", xlab = "Steps per day")
 ```
@@ -74,7 +74,7 @@ hist(actData_byDay_sumSteps$stepsPerDay, breaks = 10,
 
 This code should be fairly straightforward.  
 
-```{r}
+```{r avgSteps}
 medianSteps <- median(actData_byDay_sumSteps$stepsPerDay)
 meanSteps <- mean(actData_byDay_sumSteps$stepsPerDay)
 print(paste("The median number of steps per day is:", medianSteps))
@@ -88,7 +88,7 @@ print(paste("The mean number of steps per day is:", meanSteps))
 
 The goal here is to make a plot with each 5-minute interval across a day on the x-axis, and the number of steps taken in that interval (averaged across all days) on the y-axis. I'll use **dplyr** to group by interval, then calculate the mean number of steps during each interval (across all days), and finally plot the resulting data.  
 
-```{r}
+```{r timePlot1_stepsPerInterval}
 actData_byInterval <- group_by(actData, interval)
 actData_byInterval_avgSteps <- summarize(actData_byInterval, 
                                          avgSteps = mean(steps, na.rm = TRUE))
@@ -101,7 +101,7 @@ qplot(x = interval, y = avgSteps, data = actData_byInterval_avgSteps, geom = "li
 
 I use which.max() to identify the index of the most common, and then use that to slice/subset the grouped, summarized dataset to identify the value of that interval.
 
-```{r}
+```{r maxInterval}
 maxInterval <- actData_byInterval_avgSteps$interval[which.max(actData_byInterval_avgSteps$avgSteps)]
 print(paste("the interval with the most steps is:", maxInterval))
 ```
@@ -116,7 +116,7 @@ Now, rather than removing NA's, I'll replace them with best-estimates
 
 Just using sum(is.na())
 
-```{r}
+```{r numNA}
 totalNAsteps <- sum(is.na(actData$steps))
 print(paste("The total number of NAs in the dataset is:", totalNAsteps))
 ```
@@ -129,7 +129,7 @@ For each missing value at a given time interval, I opted to just fill in the ave
 
 For this, I'll first copy the original data.frame, then use replace() to identify locations where NA values are found, and substitute the average number of steps for that time interval (calculated from the na.rm data.frame above).
 
-```{r}
+```{r imputeNA}
 actDataImputed <- actData
 actDataImputed$steps <- replace(actDataImputed$steps, is.na(actDataImputed$steps),
                          actData_byInterval_avgSteps$avgSteps)
@@ -137,7 +137,7 @@ actDataImputed$steps <- replace(actDataImputed$steps, is.na(actDataImputed$steps
 
 This new data.frame, actDataImputed, now has replaced the original "steps" variable with a version in which all NAs are replaced by average values. We can see that it has worked by displaying the first 6 rows of the Imputed dataset compared to the original:  
 
-```{r}
+```{r imputeTest}
 head(actData)
 head(actDataImputed)
 ```
@@ -146,7 +146,7 @@ head(actDataImputed)
 
 Code is similar to that for generating the histogram above for raw data with NA's removed.  
 
-```{r}
+```{r histoPlot2_imputedStepsPerDay}
 actDataImputed_byDay <- group_by(actDataImputed, date)
 actDataImputed_byDay_sumSteps <- summarize(actDataImputed_byDay, stepsPerDay = sum(steps))
 hist(actDataImputed_byDay_sumSteps$stepsPerDay, breaks = 10, 
@@ -157,7 +157,7 @@ hist(actDataImputed_byDay_sumSteps$stepsPerDay, breaks = 10,
 
 Code is similar to the above for raw data with NA's removed.  
 
-```{r}
+```{r imputedAvgSteps}
 medianStepsImputed <- median(actDataImputed_byDay_sumSteps$stepsPerDay)
 meanStepsImputed <- mean(actDataImputed_byDay_sumSteps$stepsPerDay)
 print(paste("The median number of steps per day from imputed data is:", medianStepsImputed))
@@ -173,7 +173,7 @@ Note that in the imputed data, the mean and median are *exactly the same!*. This
 
 I first use the weekdays() function to assign each date to a day of the week, then mutate() from the **dplyr** package to convert these to a two-factor variable.  
 
-```{r}
+```{r assignDays}
 actData$dayOfWeek <- weekdays(actData$date)
 actDataWeekends <- mutate(actData, dayType = ifelse(actData$dayOfWeek 
                                                     %in% c("Saturday", "Sunday"),
@@ -186,7 +186,7 @@ Because this is plotting average steps across all days, it doesn't matter if thi
 
 Similar to above, I'm using **dplyr** for data manipulations (grouping by dayType and plotting across intervals for each dayType), and then using the qplot() function of **ggplot2** for plotting.
 
-```{r}
+```{r timePlot2_stepsByDayType}
 actDataWeekends_grouped <- group_by(actDataWeekends, dayType, interval)
 actDataWeekends_summary <- summarize(actDataWeekends_grouped, meanSteps = mean(steps, na.rm = TRUE))
 qplot(x = interval, y = meanSteps, data = actDataWeekends_summary, 
